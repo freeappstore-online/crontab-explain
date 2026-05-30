@@ -1,0 +1,15 @@
+{
+  "name": "crontab-explain",
+  "private": true,
+  "packageManager": "pnpm@10.30.3",
+  "engines": { "node": ">=22" },
+  "pnpm": { "onlyBuiltDependencies": ["esbuild"] },
+  "repository": { "type": "git", "url": "git+https://github.com/freeappstore-online/crontab-explain.git" },
+  "scripts": {
+    "dev": "pnpm --filter @crontab-explain/web dev",
+    "build": "pnpm --filter @crontab-explain/web build",
+    "preview": "pnpm --filter @crontab-explain/web preview",
+    "typecheck": "pnpm --filter @crontab-explain/web exec tsc -b",
+    "test": "pnpm --filter @crontab-explain/web exec tsc -b"
+  }
+}
