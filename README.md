@@ -1,40 +1,75 @@
-# template-standalone
+# Crontab Explanation
 
-The standalone-app template used by [`fas init`](https://github.com/freeappstore-online/platform/tree/main/packages/cli) to scaffold new free apps for [FreeAppStore](https://freeappstore.online).
+> Parse and explain Crontab/Cronjob expressions in real-time — with Vietnamese 🇻🇳 and English 🇬🇧 support.
 
-You almost certainly want to use the CLI, not clone this directly:
+**Live:** [crontab-explain.freeappstore.online](https://crontab-explain.freeappstore.online)  
+**Platform:** [FreeAppStore](https://freeappstore.online) — free, MIT-licensed, no tracking.
+
+---
+
+## Features
+
+- **Expression builder** — individual input fields for each cron field; edits sync bidirectionally with the raw expression input
+- **3 formats** — 5-field (standard), 6-field (+ second), 7-field (+ second + year)
+- **13 common examples** — one click populates all fields and the expression at once
+- **Human-readable explanation** — powered by [`cronstrue`](https://github.com/bradymholt/cronstrue) with full Vietnamese and English locale support
+- **Field analysis table** — shows each field's value, allowed range, and plain-language meaning
+- **Next 8 scheduled runs** — calculated via [`cron-parser`](https://github.com/harrisiirak/cron-parser), displayed in UTC
+- **Language toggle** — switch between VI / EN at any time without losing state
+- **PWA** — installable on any device, works offline
+
+## Tech stack
+
+| Layer            | Choice                        |
+| ---------------- | ----------------------------- |
+| Framework        | React 19 + Vite 8             |
+| Styling          | Tailwind CSS v4               |
+| Cron parsing     | `cron-parser` v5              |
+| Cron description | `cronstrue` v3 (i18n bundle)  |
+| Shell / auth     | `@freeappstore/sdk`           |
+| PWA              | `vite-plugin-pwa` + Workbox   |
+
+## Development
 
 ```bash
-npm i -g @freeappstore/cli
-fas init my-app
+pnpm install
+pnpm dev        # http://localhost:5173
+pnpm build      # production build → web/dist/
+pnpm typecheck  # TypeScript check only
 ```
 
-The CLI clones this template, replaces every `freeappstore` placeholder with your app id, runs `git init`, and makes the first commit — the result is a runnable app you can `pnpm dev` immediately.
-
-## What's in here
-
-- `web/` — Vite + React + TypeScript app, ESM-only, no Tailwind config needed (utility classes via inline styles + the `Shell` component).
-- `web/src/components/Shell.tsx` — sidebar layout with brand fonts (Manrope + Fraunces), CSS variables (`--paper`, `--ink`, `--accent`), and dark-mode support out of the box.
-- `web/src/main.tsx` — React entry point.
-- `web/index.html` — links Manrope + Fraunces, sets PWA meta tags, references the manifest.
-- `web/public/manifest.json` — PWA manifest with `name`, `display`, `start_url`.
-- `package.json` — pnpm workspace, `dev` / `build` / `typecheck` / `test` scripts.
-- `.github/workflows/compliance.yml` — runs the same checks as `fas check` on every PR. Source of truth lives in the [`@freeappstore/compliance`](https://www.npmjs.com/package/@freeappstore/compliance) package.
-
-## Cloning manually (not recommended)
-
-If you really want to scaffold by hand:
+Quality checks (same gates as CI):
 
 ```bash
-git clone https://github.com/freeappstore-online/template-standalone my-app
-cd my-app
-# Replace freeappstore → my-app in package.json, web/index.html, web/src/main.tsx, README, etc.
-rm -rf .git && git init
-pnpm install && pnpm dev
+fas check         # compliance: license, brand, PWA, bundle size …
+fas screencheck   # layout on 12 reference viewports (portrait + landscape)
 ```
 
-Then run `fas publish` to provision repo + hosting + DNS, or open the [submission form](https://github.com/freeappstore-online/submissions/issues/new) for maintainer review.
+## Project structure
+
+```text
+web/
+  src/
+    App.tsx        # main UI, language state, all sections
+    i18n.ts        # VI / EN translations and example definitions
+    cron-utils.ts  # locale-aware cron parsing and next-run calculation
+    index.css      # brand tokens, dark mode, viewport constraints
+  public/
+    manifest.json  # PWA manifest (min_viewport_width: 360)
+    icon-192.png
+    icon-512.png
+  index.html
+  vite.config.ts
+```
+
+## Deploy
+
+Push to `main` — GitHub Actions builds and deploys to Cloudflare R2 automatically.
+
+```bash
+git push origin main
+```
 
 ## License
 
-MIT.
+MIT
