@@ -1,7 +1,23 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
-import { VitePWA } from 'vite-plugin-pwa'
+import { VitePWA, type ManifestOptions } from 'vite-plugin-pwa'
+
+const pwaManifest: Partial<ManifestOptions> & { min_viewport_width?: number } = {
+  name: 'Crontab Explanation',
+  short_name: 'Crontab',
+  description: 'Parse and explain Crontab/Cronjob expressions in real-time',
+  start_url: '/',
+  display: 'standalone',
+  background_color: '#ffffff',
+  theme_color: '#111111',
+  orientation: 'any',
+  min_viewport_width: 360,
+  icons: [
+    { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+    { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
+  ],
+}
 
 export default defineConfig({
   plugins: [
@@ -38,20 +54,7 @@ export default defineConfig({
           },
         ],
       },
-      manifest: {
-        name: 'crontab-explain',
-        short_name: 'crontab-explain',
-        description: 'Free crontab-explain app — part of FreeAppStore',
-        start_url: '/',
-        display: 'standalone',
-        background_color: '#ffffff',
-        theme_color: '#111111',
-        orientation: 'any',
-        icons: [
-          { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
-          { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
-        ],
-      },
+      manifest: pwaManifest as Partial<ManifestOptions>,
     }),
   ],
   server: { host: true },

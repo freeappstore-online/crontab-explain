@@ -104,13 +104,15 @@
 }
 
 html {
-  min-height: 100%;
+  height: 100%;
+  overflow: hidden;
   -webkit-text-size-adjust: 100%;
   touch-action: manipulation;
 }
 
 body {
-  min-height: 100dvh;
+  height: 100dvh;
+  overflow: hidden;
   background:
     radial-gradient(circle at top left, var(--bg-blob-1), transparent 32%),
     radial-gradient(circle at top right, var(--bg-blob-2), transparent 30%),
@@ -151,7 +153,8 @@ body::after {
 }
 
 #root {
-  min-height: 100dvh;
+  height: 100dvh;
+  overflow: hidden;
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
   isolation: isolate;
@@ -204,3 +207,13 @@ a:focus-visible {
 }
 
 } /* end @layer base */
+
+/* Force FasShell to stay within the viewport so content scrolls internally
+   rather than letting the document scroll (required by fas screencheck). */
+#root > div {
+  height: 100dvh !important;
+}
+
+#root > div > main {
+  min-height: 0 !important;
+}
