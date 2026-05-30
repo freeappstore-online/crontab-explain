@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback } from 'react'
 import { initApp } from '@freeappstore/sdk'
-import { FasShell, BuildInfo } from '@freeappstore/sdk/ui'
+import { Shell, BuildInfo } from '@freeappstore/sdk/ui'
 import type { Locale } from './i18n'
 import { LOCALES } from './i18n'
 import type { CronFormat } from './cron-utils'
@@ -124,7 +124,7 @@ export default function App() {
   const nextRuns = useMemo(() => result.valid ? getNextRuns(expr, format, 8) : [], [expr, format, result.valid])
 
   return (
-    <FasShell app={fas} appName="Crontab Explanation">
+    <Shell app={fas} appName="Crontab Explanation">
       <div className="flex-1 min-h-0 overflow-y-auto">
       <div className="mx-auto w-full max-w-4xl px-4 py-6 space-y-6">
 
@@ -321,6 +321,6 @@ export default function App() {
       </div>
 
       <BuildInfo />
-    </FasShell>
+    </Shell>
   )
 }

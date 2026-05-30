@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@freeappstore/sdk": "^0.12.0",
+    "@freeappstore/sdk": "^0.14.7",
     "cron-parser": "^5.5.0",
     "cronstrue": "^3.14.0",
     "react": "^19.2.5",
