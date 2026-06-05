@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p /home/tommy/code/crontab-explain/web/src/hooks /home/tommy/code/crontab-explain/web/src/components && echo ok)",
+      "Bash(pnpm typecheck *)",
+      "Bash(pnpm tsc *)"
+    ],
+    "additionalDirectories": [
+      "/home/tommy/code/crontab-explain/web/src"
+    ]
+  }
+}

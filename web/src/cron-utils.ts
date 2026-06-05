@@ -1,16 +1,9 @@
 import { toString as cronToString } from 'cronstrue/dist/cronstrue-i18n.js'
 import { CronExpressionParser } from 'cron-parser'
-import type { Locale, FieldDef } from './i18n'
+import type { Locale } from './i18n'
 import { LOCALES } from './i18n'
 
 export type CronFormat = 5 | 6 | 7
-
-export function getFields(format: CronFormat, locale: Locale): FieldDef[] {
-  const t = LOCALES[locale]
-  if (format === 5) return t.fields5
-  if (format === 6) return t.fields6
-  return t.fields7
-}
 
 export function getDefaultExpr(format: CronFormat): string {
   if (format === 5) return '* * * * *'
@@ -20,12 +13,18 @@ export function getDefaultExpr(format: CronFormat): string {
 
 export function exprToValues(expr: string, format: CronFormat): string[] {
   const parts = expr.trim().split(/\s+/)
-  if (parts.length === format) return parts
-  return getDefaultExpr(format).split(' ')
+  return parts.length === format ? parts : getDefaultExpr(format).split(' ')
 }
 
 export function valuesToExpr(values: string[]): string {
   return values.join(' ')
+}
+
+/** Strip year field from 7-field expressions before passing to cronstrue/cron-parser. */
+function normalizeExpr(expr: string, format: CronFormat): string {
+  if (format !== 7) return expr
+  const parts = expr.trim().split(/\s+/)
+  return parts.slice(0, 6).join(' ')
 }
 
 export interface ParseResult {
@@ -40,12 +39,8 @@ export function parseCron(expr: string, format: CronFormat, locale: Locale): Par
   if (parts.length !== format) {
     return { valid: false, description: '', error: t.errorPrefix(format, parts.length) }
   }
-
   try {
-    let parseExpr = expr
-    if (format === 7) parseExpr = parts.slice(0, 6).join(' ')
-
-    const description = cronToString(parseExpr, {
+    const description = cronToString(normalizeExpr(expr, format), {
       use24HourTimeFormat: true,
       verbose: false,
       dayOfWeekStartIndexZero: true,
@@ -53,19 +48,14 @@ export function parseCron(expr: string, format: CronFormat, locale: Locale): Par
     })
     return { valid: true, description, error: null }
   } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : String(e)
-    return { valid: false, description: '', error: msg }
+    return { valid: false, description: '', error: e instanceof Error ? e.message : String(e) }
   }
 }
 
 export function getNextRuns(expr: string, format: CronFormat, count = 8): Date[] {
-  const parts = expr.trim().split(/\s+/)
-  if (parts.length !== format) return []
+  if (expr.trim().split(/\s+/).length !== format) return []
   try {
-    let parseExpr = expr
-    if (format === 7) parseExpr = parts.slice(0, 6).join(' ')
-
-    const iter = CronExpressionParser.parse(parseExpr, { currentDate: new Date() })
+    const iter = CronExpressionParser.parse(normalizeExpr(expr, format), { currentDate: new Date() })
     const results: Date[] = []
     for (let i = 0; i < count; i++) {
       try { results.push(iter.next().toDate()) } catch { break }
@@ -74,4 +64,8 @@ export function getNextRuns(expr: string, format: CronFormat, count = 8): Date[]
   } catch {
     return []
   }
+}
+
+export function describeField(fieldId: string, value: string, locale: Locale): string {
+  return LOCALES[locale].describeField(fieldId, value)
 }

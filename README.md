@@ -50,12 +50,18 @@ fas screencheck   # layout on 12 reference viewports (portrait + landscape)
 ```text
 web/
   src/
-    App.tsx        # main UI, language state, all sections
-    i18n.ts        # VI / EN translations and example definitions
-    cron-utils.ts  # locale-aware cron parsing and next-run calculation
-    index.css      # brand tokens, dark mode, viewport constraints
+    App.tsx                      # thin root — wires hook + components
+    hooks/
+      useCronState.ts            # all cron state, handlers, derived values
+    components/
+      ui.tsx                     # CronFieldInput, StatusBadge, LangToggle
+      CronBuilder.tsx            # FormatSelector + ExpressionBuilder + Examples
+      CronResults.tsx            # Explanation + FieldAnalysis + NextRuns
+    i18n.ts                      # VI / EN translations and example definitions
+    cron-utils.ts                # locale-aware cron parsing and next-run calculation
+    index.css                    # brand tokens, dark mode, viewport constraints
   public/
-    manifest.json  # PWA manifest (min_viewport_width: 360)
+    manifest.json                # PWA manifest (min_viewport_width: 360)
     icon-192.png
     icon-512.png
   index.html
