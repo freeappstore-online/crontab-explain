@@ -52,13 +52,36 @@ export function parseCron(expr: string, format: CronFormat, locale: Locale): Par
   }
 }
 
+/** Parts of a cron year field (`*`, `?`, lists, ranges, steps) as [from, to, step]. */
+function yearRanges(field: string): [number, number, number][] {
+  return field.split(',').map(part => {
+    const [range, stepStr] = part.split('/')
+    const step = stepStr ? Number(stepStr) : 1
+    if (range === '*' || range === '?') return [1970, Infinity, step]
+    const [lo, hi] = range.split('-').map(Number)
+    return [lo, hi ?? (stepStr ? Infinity : lo), step]
+  })
+}
+
 export function getNextRuns(expr: string, format: CronFormat, count = 8): Date[] {
-  if (expr.trim().split(/\s+/).length !== format) return []
+  const parts = expr.trim().split(/\s+/)
+  if (parts.length !== format) return []
+  const years = yearRanges(format === 7 ? parts[6] : '*')
+  const yearOk = (y: number) => years.some(([lo, hi, step]) => y >= lo && y <= hi && (y - lo) % step === 0)
+  const minYear = Math.min(...years.map(r => r[0]))
+  const maxYear = Math.max(...years.map(r => r[1]))
   try {
-    const iter = CronExpressionParser.parse(normalizeExpr(expr, format), { currentDate: new Date() })
+    // Runs are listed in UTC (CronResults), so compute them in UTC too.
+    const start = Math.max(Date.now(), Date.UTC(minYear, 0, 1) - 1000)
+    const iter = CronExpressionParser.parse(normalizeExpr(expr, format), { currentDate: new Date(start), tz: 'UTC' })
     const results: Date[] = []
-    for (let i = 0; i < count; i++) {
-      try { results.push(iter.next().toDate()) } catch { break }
+    // Bounded scan so a sparse year field can't hang the page.
+    for (let i = 0; i < 10_000 && results.length < count; i++) {
+      let d: Date
+      try { d = iter.next().toDate() } catch { break }
+      const y = d.getUTCFullYear()
+      if (y > maxYear) break
+      if (yearOk(y)) results.push(d)
     }
     return results
   } catch {
